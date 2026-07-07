@@ -1,0 +1,37 @@
+# Aliases
+# For a full list of active aliases, run `alias`.
+
+alias ohmyzsh="n ~/.oh-my-zsh"
+alias zshrc="n ~/.zshrc"
+alias rezshrc="source ~/.zshrc"
+alias clr="clear"
+alias ..="cd .."
+alias ...="cd ../.."
+
+# sui
+alias sclient="sui client"
+alias smove="sui move"
+alias skeytool="sui keytool"
+
+# Applications
+alias n="nvim"
+alias lgit="lazygit"
+alias pm2re="pm2 restart"
+alias zel="zellij"
+alias ldocker="lazydocker"
+alias t="task"
+alias tt="taskwarrior-tui"
+
+# dev
+alias py3="python3"
+alias mongostart="brew services start mongodb-community@8.0"
+alias mongostop="brew services stop mongodb-community@8.0"
+alias mongostatus="brew services info mongodb-community@8.0"
+alias mongorestart="brew services restart mongodb-community@8.0"
+
+# Dir
+alias project="cd ~/Project"
+alias learning="cd ~/Learning"
+
+# EXPO
+alias expo:ios="npx expo run:ios -d"

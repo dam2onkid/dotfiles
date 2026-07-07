@@ -1,0 +1,35 @@
+# Environment variables & PATH
+
+# If you come from bash you might have to change your $PATH.
+# export PATH=$HOME/bin:$HOME/.local/bin:/usr/local/bin:$PATH
+
+# Added by Windsurf
+export ANDROID_HOME=/Users/dam2onkid/Library/Android/sdk
+export PATH="$ANDROID_HOME/emulator:$ANDROID_HOME/platform-tools:$PATH"
+
+# solana cli
+export PATH="$HOME/.local/share/solana/install/active_release/bin:$PATH"
+export PATH="/Users/dam2onkid/.local/share/solana/install/active_release/bin:$PATH"
+
+# maestro
+export PATH="$PATH":"$HOME/.maestro/bin"
+
+# Added by Antigravity
+export PATH="/Users/dam2onkid/.antigravity/antigravity/bin:$PATH"
+export PATH=$PATH:$HOME/.maestro/bin
+
+# Added by LM Studio CLI (lms)
+export PATH="$PATH:/Users/dam2onkid/.lmstudio/bin"
+# End of LM Studio CLI section
+
+# CODEX-LB services
+export CODEX_LB_API_KEY="sk-clb-Jcdxaoq7QiNP_ziHlRCjTa_NlQBTb05x-sVcLyp7E3"
+
+# Added by Antigravity
+export PATH="/Users/dam2onkid/.antigravity/antigravity/bin:$PATH"
+
+# Colima (docker VM)
+export DOCKER_HOST="unix://$HOME/.colima/default/docker.sock"
+
+# mise (runtime version manager) - use zsh activation under zsh
+eval "$(~/.local/bin/mise activate zsh)"

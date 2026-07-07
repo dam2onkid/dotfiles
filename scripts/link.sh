@@ -2,40 +2,50 @@
 set -euo pipefail
 
 # -----------------------------------------------------------------------------
-# link.sh - symlink the shared global AGENTS.md into every AI coding agent's
-#           global config location so they all read the same instructions.
+# link.sh - symlink dotfiles into $HOME so they stay in sync with the repo.
 #
-# Source of truth : ~/dotfiles/agents/AGENTS.md
-# Linked targets  :
-#   Claude Code   ->  ~/.claude/CLAUDE.md
-#   OpenAI Codex  ->  ~/.codex/AGENTS.md
-#   Cline         ->  ~/.agents/AGENTS.md
-#   Devin CLI     ->  ~/.config/devin/AGENTS.md
+# Source of truth : ~/dotfiles
 #
 # Existing files are backed up with a timestamp before being replaced, so the
 # script is safe to re-run (it is idempotent).
 # -----------------------------------------------------------------------------
 
 DOTFILES="$HOME/dotfiles"
-SOURCE="$DOTFILES/agents/AGENTS.md"
 
-# Global instruction file each agent reads at startup.
-TARGETS=(
+# ------------------------------------------------------------------
+# Symlink map: "target_in_HOME:source_relative_to_DOTFILES"
+# ------------------------------------------------------------------
+LINKS=(
+  # zsh modules (the .zshrc entry point sources the rest via $HOME/<file>)
+  ".zshrc:zsh/.zshrc"
+  ".plugins:zsh/.plugins"
+  ".exports:zsh/.exports"
+  ".aliases:zsh/.aliases"
+  ".functions:zsh/.functions"
+)
+
+# ------------------------------------------------------------------
+# Global AGENTS.md -> each AI coding agent's global config location
+# (source of truth: ~/dotfiles/agents/AGENTS.md)
+# ------------------------------------------------------------------
+AGENTS_SOURCE="$DOTFILES/agents/AGENTS.md"
+AGENTS_TARGETS=(
   "$HOME/.claude/CLAUDE.md"       # Claude Code  (user-level memory)
   "$HOME/.codex/AGENTS.md"        # Codex        (global AGENTS.md)
   "$HOME/.agents/AGENTS.md"       # Cline        (cross-tool global AGENTS.md)
   "$HOME/.config/devin/AGENTS.md" # Devin CLI    (XDG global AGENTS.md)
 )
 
-# Create a symlink at $1 pointing to $SOURCE, backing up anything already there.
+# Create a symlink at $target pointing to $source, backing up anything there.
 link_target() {
   local target="$1"
+  local source="$2"
   local dir
   dir="$(dirname "$target")"
   mkdir -p "$dir"
 
   # Already pointing at the source - nothing to do.
-  if [ -L "$target" ] && [ "$(readlink "$target")" = "$SOURCE" ]; then
+  if [ -L "$target" ] && [ "$(readlink "$target")" = "$source" ]; then
     printf "  ok already linked %s\n" "$target"
     return 0
   fi
@@ -47,25 +57,47 @@ link_target() {
     printf "  * backed up       %s -> %s\n" "$target" "$backup"
   fi
 
-  ln -s "$SOURCE" "$target"
-  printf "  ok linked         %s -> %s\n" "$target" "$SOURCE"
+  ln -s "$source" "$target"
+  printf "  ok linked         %s -> %s\n" "$target" "$source"
 }
 
 main() {
-  if [ ! -f "$SOURCE" ]; then
-    echo "error: source file not found: $SOURCE" >&2
-    echo "       create it first, then re-run this script." >&2
+  if [ ! -d "$DOTFILES" ]; then
+    echo "error: dotfiles directory not found: $DOTFILES" >&2
     exit 1
   fi
 
-  echo "Linking global AGENTS.md to all agents..."
-  echo "  source: $SOURCE"
+  echo "Linking dotfiles into $HOME..."
+  echo "  source: $DOTFILES"
   echo
-  for target in "${TARGETS[@]}"; do
-    link_target "$target"
+
+  # zsh modules + .zshrc
+  echo "  zsh:"
+  for entry in "${LINKS[@]}"; do
+    target_name="${entry%%:*}"
+    rel="${entry##*:}"
+    source="$DOTFILES/$rel"
+    if [ ! -f "$source" ]; then
+      printf "  ! missing source  %s\n" "$source"
+      continue
+    fi
+    link_target "$HOME/$target_name" "$source"
   done
   echo
-  echo "Done. Edit $SOURCE to update every agent at once."
+
+  # global AGENTS.md
+  if [ -f "$AGENTS_SOURCE" ]; then
+    echo "  global AGENTS.md:"
+    for target in "${AGENTS_TARGETS[@]}"; do
+      link_target "$target" "$AGENTS_SOURCE"
+    done
+  else
+    echo "  ! skipping global AGENTS.md (source not found: $AGENTS_SOURCE)"
+  fi
+  echo
+
+  echo "Done. Edit files under $DOTFILES to update everywhere at once."
 }
 
 main "$@"
+

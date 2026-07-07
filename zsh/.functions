@@ -1,0 +1,26 @@
+# Functions
+
+## Ham tim nhanh ung dung dang chiem port (Vi du: fport 8080)
+fport() {
+    if [ -z "$1" ]; then
+        echo "Error: Please specify a port number. Usage: fport <port>"
+    else
+        sudo lsof -i :"$1"
+    fi
+}
+
+# Ham giai phong port ngay lap tuc (Vi du: kport 8080)
+kport() {
+    if [ -z "$1" ]; then
+        echo "Error: Please specify a port number. Usage: kport <port>"
+    else
+        PID=$(sudo lsof -t -i :"$1")
+        if [ -z "$PID" ]; then
+            echo "No process found running on port $1."
+        else
+            echo "Killing process $PID using port $1..."
+            sudo kill -9 $PID
+            echo "Port $1 is now free!"
+        fi
+    fi
+}
